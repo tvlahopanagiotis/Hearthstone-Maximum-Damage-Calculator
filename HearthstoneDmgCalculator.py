@@ -85,15 +85,15 @@ Calculation
 """
 
 hand = [w1,w2,w3,w4,w5,w6, Fireball]
-board = [Crocolisk,Ogre]
-enemy_board = [Senjin, Senjin]
+friendly_board = [Crocolisk,Ogre]
+enemy_board = [Crocolisk, Ogre]
 
 def damage(mana, hand, board):
-    dmg = 0
+    
     attacking = []
     manaboard = []
     
-    for minion in board:
+    for minion in friendly_board:
         if minion.frozen == False and minion.health > 0:
             minion.state = True
             attacking.append(minion)
@@ -104,7 +104,7 @@ def damage(mana, hand, board):
         if card.state == True:
             attacking.append(card)
             
-    hand_damage = 0
+    dmg = 0
     for i in range(len(attacking)+1):
         for cards in it.combinations(attacking, i):
             cards = list(cards)
@@ -113,13 +113,23 @@ def damage(mana, hand, board):
             for card in cards:
                 cards_mana.append(card.mana)
                 cards_dmg.append(card.attack)
-            if sum(cards_mana) > mana or sum(cards_dmg) <= hand_damage: continue
+            if sum(cards_mana) > mana: continue
             else:
-                hand_damage = sum(cards_dmg)
+                for minion in enemy_board:
+                    if minion.taunt == False: continue
+                    else:
+                        pass
+            if sum(cards_dmg) <= dmg: continue
+            else:
+                dmg = sum(cards_dmg)
                 names = []
                 for card in cards:
                     names.append(card.name)
-        
-    dmg += hand_damage
+    
+    for i in range(len(friendly_board)):
+        friendly_board[i].mana = manaboard[i]
     
     return dmg, names
+
+
+print damage(7,friendly_board,enemy_board)
