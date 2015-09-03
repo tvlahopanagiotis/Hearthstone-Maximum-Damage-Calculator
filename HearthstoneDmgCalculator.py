@@ -86,13 +86,12 @@ Calculation
 
 hand = [w1,w2,w3,w4,w5,w6, Fireball]
 friendly_board = [Crocolisk,Ogre]
-enemy_board = [Crocolisk, Ogre]
+enemy_board = [Senjin, Bloodfen_Raptor]
 
 def damage(mana, hand, board):
     
     attacking = []
     manaboard = []
-    
     for minion in friendly_board:
         if minion.frozen == False and minion.health > 0:
             minion.state = True
@@ -105,6 +104,11 @@ def damage(mana, hand, board):
             attacking.append(card)
             
     dmg = 0
+    enemy_board_health = []
+    for minion in enemy_board:                              #calculates the health of the enemy taunt minions and creates a list
+        if minion.taunt == True:
+            enemy_board_health.append(minion.health)
+
     for i in range(len(attacking)+1):
         for cards in it.combinations(attacking, i):
             cards = list(cards)
@@ -115,10 +119,17 @@ def damage(mana, hand, board):
                 cards_dmg.append(card.attack)
             if sum(cards_mana) > mana: continue
             else:
-                for minion in enemy_board:
-                    if minion.taunt == False: continue
-                    else:
-                        pass
+                if sum(enemy_board_health) > sum(cards_dmg):
+                    cards_dmg = [0]
+                else:
+                    for i in range(0,len(enemy_board_health)-1):
+                        for j in range(0,len(cards_dmg)-1):
+                            while enemy_board_health[i] > 0:
+                                enemy_board_health[i] -= cards_dmg[j]
+                                cards_dmg.remove(cards_dmg[j])
+                                cards.remove(cards[j])
+                                print i
+
             if sum(cards_dmg) <= dmg: continue
             else:
                 dmg = sum(cards_dmg)
@@ -132,4 +143,4 @@ def damage(mana, hand, board):
     return dmg, names
 
 
-print damage(7,friendly_board,enemy_board)
+print damage(7,hand,friendly_board)
